@@ -5,79 +5,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DALL·E 3 Image Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f4f7f6;
-            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill-opacity="0.05"><rect x="50" width="1" height="100"/><rect y="50" width="100" height="1"/></svg>');
-            color: #333;
-            padding: 20px;
-        }
 
-        .container, .instructions {
-            max-width: 800px;
-            margin: 20px auto;
-            background: #fff;
-            padding: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            border-radius: 8px;
-        }
+<style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f4f7f6;
+        color: #333;
+        padding: 20px;
+        line-height: 1.6;
+    }
 
-        h1, h2 {
-            margin-bottom: 20px;
-            font-size: 28px;
-            color: #333;
-        }
+    .container, .instructions {
+        max-width: 800px;
+        margin: 20px auto;
+        background: #fff;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        border-radius: 10px;
+    }
 
-        label, p {
-            font-weight: 500;
-            margin-top: 15px;
-        }
+    h1, h2 {
+        margin-bottom: 20px;
+        font-size: 32px;
+        color: #333;
+    }
 
-        input, textarea, button {
-            width: calc(100% - 22px);
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-            font-family: 'Roboto', sans-serif;
-        }
+    label {
+        display: block;
+        font-weight: 500;
+        margin-top: 20px;
+        color: #555;
+    }
 
-        button {
-            background-color: #5cb85c;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
+    input, textarea, select, button {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0 20px;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-sizing: border-box;
+        font-family: 'Roboto', sans-serif;
+    }
 
-        button:hover {
-            background-color: #4cae4c;
-        }
+    select {
+        cursor: pointer;
+        background-color: #fff;
+    }
 
-        .response {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        
-        .instructions p {
-            font-size: 16px;
-        }
+    button {
+        width: auto;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        transition: all 0.3s ease 0s;
+    }
 
-        .instructions a {
-            color: #007bff;
-            text-decoration: none;
-        }
+    button:hover {
+        background-color: #0056b3;
+    }
 
-        .instructions a:hover {
-            text-decoration: underline;
-        }
+    .response {
+        margin-top: 20px;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+    }
 
-    </style>
+    .instructions p, .instructions ul {
+        font-size: 16px;
+    }
+
+    .instructions a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    .instructions a:hover {
+        text-decoration: underline;
+    }
+</style>
+
 </head>
 <body>
     <div class="container">
