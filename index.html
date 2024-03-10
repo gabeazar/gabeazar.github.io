@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DALL·E 3 Image Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f7f6;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill-opacity="0.05"><rect x="50" width="1" height="100"/><rect y="50" width="100" height="1"/></svg>');
+            color: #333;
+            padding: 20px;
+        }
+
+        .container, .instructions {
+            max-width: 800px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+
+        h1, h2 {
+            margin-bottom: 20px;
+            font-size: 28px;
+            color: #333;
+        }
+
+        label, p {
+            font-weight: 500;
+            margin-top: 15px;
+        }
+
+        input, textarea, button {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        button {
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #4cae4c;
+        }
+
+        .response {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .instructions p {
+            font-size: 16px;
+        }
+
+        .instructions a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .instructions a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DALL·E 3 Image Generator</h1>
+
+        <label for="apiKey">OpenAI API Key:</label>
+        <input type="password" id="apiKey" placeholder="Enter your OpenAI API key">
+
+        <label for="prompt">Image Prompt (up to 1000 words):</label>
+        <textarea id="prompt" rows="4" placeholder="Describe the image you want to generate..."></textarea>
+<!-- Size Selection -->
+        <label for="sizeSelect">Select Image Size:</label>
+            <select id="sizeSelect">
+                <option value="1024x1024">1024x1024</option>
+                <option value="1024x1792">1024x1792</option>
+                <option value="1792x1024" selected>1792x1024</option>
+            </select>
+        <button id="generateButton">Generate Image</button>
+
+        <div id="responseBox" class="response"></div>
+    </div>
+
+    <div class="instructions">
+        <h2>How to Obtain an OpenAI API Key</h2>
+        <p>To use this DALL·E 3 Image Generator, you need an API key from OpenAI. Follow these steps to get your key:</p>
+        <ul>
+            <li>Visit <a href="https://openai.com/api/" target="_blank">OpenAI API</a> and sign up for an account or log in if you already have one.</li>
+            <li>Navigate to the API keys section of your account settings.</li>
+            <li>Click on the "Create new key" button and follow the prompts.</li>
+            <li>Copy your new API key and paste it into the "OpenAI API Key" field on this page.</li>
+        </ul>
+        <p>Note: Keep your API key secure and do not share it publicly.</p>
+    </div>
+
+    <script>
+        document.getElementById('generateButton').addEventListener('click', function() {
+    var apiKey = document.getElementById('apiKey').value;
+    var promptText = document.getElementById('prompt').value;
+    // Fetch the selected size
+    var selectedSize = document.getElementById('sizeSelect').value; 
+    var responseBox = document.getElementById('responseBox');
+
+    responseBox.innerHTML = 'Loading...';
+
+    fetch('https://api.openai.com/v1/images/generations', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+            model:'dall-e-3', 
+            prompt: promptText,
+            n: 1, // Number of images to generate
+            size: selectedSize, // Use the selected size
+            quality: 'hd'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.data && data.data.length > 0) {
+            const imageData = data.data[0].url;
+            responseBox.innerHTML = `<img src="${imageData}" alt="Generated Image" style="max-width: 100%; height: auto;">`;
+        } else {
+            responseBox.innerText = 'No image was generated. Please try again with a different prompt.';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        responseBox.innerText = 'Failed to generate image. Please check the console for more details.';
+    });
+});
+    </script>
+</body>
+</html>
