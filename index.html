@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -98,17 +97,15 @@
     .instructions a:hover {
         text-decoration: underline;
     }
-</style>
-</head>
+</style></head>
 <body>
     <div class="container">
         <h1>DALL·E Image Generator</h1>
         <label for="modelSelect">Choose DALL·E Model:</label>
-        <select id="modelSelect">
-            <option value="dall-e-mini">DALL·E Mini</option>
-            <option value="dall-e">DALL·E</option>
-            <option value="dall-e-3">DALL·E 3</option>
-        </select>
+		<select id="modelSelect">
+			<option value="dall-e-2">DALL·E 2</option>
+			<option value="dall-e-3">DALL·E 3</option>
+		</select> 
         <div id="creditWarning" class="credit-warning">
             Note: Using DALL·E 3 may incur credit usage!
         </div>
@@ -147,14 +144,12 @@
         <p>Note: Keep your API key secure and do not share it publicly.</p>
     </div> 
     <script>
-		const modelOptions = {
-			'dall-e': 'https://api.openai.com/v1/images/generations',
-			'dall-e-2': 'https://api.openai.com/v1/images/edit',
-			'dall-e-3': 'https://api.openai.com/v1/images/generations',
-			'dall-e-mini': 'https://api.openai.com/v1/images/generations',
-		};
+        const modelOptions = {
+            'dall-e-2': 'https://api.openai.com/v1/images/generations',
+            'dall-e-3': 'https://api.openai.com/v1/images/generations',
+        };
 
-        // Ensure the image upload section is shown when DALL·E 2 is selected and hidden otherwise.
+        document.getElementById('modelSelect').addEventListener('change', function() {
 		document.getElementById('modelSelect').addEventListener('change', function() {
 			var model = this.value;
 			var uploadSection = document.getElementById('uploadSection');
@@ -163,9 +158,8 @@
 			} else {
 				uploadSection.style.display = 'none';
 			}
-		});
+        });
 
-        // In your call to the OpenAI API, include the base64 image data when DALL·E 2 is selected.
         document.getElementById('generateButton').addEventListener('click', function() {
             var model = document.getElementById('modelSelect').value;
             var apiKey = document.getElementById('apiKey').value;
@@ -175,7 +169,14 @@
 
             var userImage = document.getElementById('userImage');
             var reader = new FileReader();
+
+            if(model === 'dall-e-2' && !userImage.files.length) {
+                alert("Please upload an image.");
+                return;
+            }
+
             reader.readAsDataURL(userImage.files[0]); 
+
             reader.onload = function () {
                 var base64Image = reader.result.split('base64,')[1];
 
@@ -194,8 +195,21 @@
                         ...(model === 'dall-e-2' ? {inpainting: true, base64_image: base64Image} : {})
                     })
                 })
-                // ... handle response ...
-            }
+                .then(response => response.json())
+                .then(data => {
+                    if(data.choices && data.choices.length > 0) {
+                        const imageUrl = data.choices[0].image;
+                        responseBox.innerHTML = `<img src="${imageUrl}" alt="Generated Image" style="max-width: 100%; height: auto;">`;
+                    } else {
+                        responseBox.innerText = 'No image was generated. Please try again with a different prompt.';
+                    }
+                })
+                .catch(error => {
+                    console.log('Error:', error);
+                    responseBox.innerText = 'Failed to generate image. Please check the console for more details.';
+                });
+            };
+
             reader.onerror = function (error) {
                 console.log('Error: ', error);
             };
