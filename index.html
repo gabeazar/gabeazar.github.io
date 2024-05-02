@@ -149,7 +149,6 @@
             'dall-e-3': 'https://api.openai.com/v1/images/generations',
         };
 
-        document.getElementById('modelSelect').addEventListener('change', function() {
 		document.getElementById('modelSelect').addEventListener('change', function() {
 			var model = this.value;
 			var uploadSection = document.getElementById('uploadSection');
@@ -158,7 +157,7 @@
 			} else {
 				uploadSection.style.display = 'none';
 			}
-        });
+		});
 
         document.getElementById('generateButton').addEventListener('click', function() {
             var model = document.getElementById('modelSelect').value;
