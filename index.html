@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DALL·E Image Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-<style>
+	<style>
     body {
         font-family: 'Roboto', sans-serif;
         background-color: #f4f7f6;
@@ -102,7 +103,6 @@
 <body>
     <div class="container">
         <h1>DALL·E Image Generator</h1>
-
         <label for="modelSelect">Choose DALL·E Model:</label>
         <select id="modelSelect">
             <option value="dall-e-mini">DALL·E Mini</option>
@@ -112,8 +112,12 @@
         <div id="creditWarning" class="credit-warning">
             Note: Using DALL·E 3 may incur credit usage!
         </div>
-        
-        <label for="apiKey">OpenAI API Key:</label>
+		<div id="uploadSection" style="display: none;">
+			<label for="userImage">Upload an Image:</label>
+			<input type="file" id="userImage" name="userImage" accept="image/*">
+		</div>
+
+<label for="apiKey">OpenAI API Key:</label>
         <input type="password" id="apiKey" placeholder="Enter your OpenAI API key">
 
         <label for="prompt">Image Prompt (up to 1000 words):</label>
@@ -141,56 +145,61 @@
             <li>Copy your new API key and paste it into the "OpenAI API Key" field on this page.</li>
         </ul>
         <p>Note: Keep your API key secure and do not share it publicly.</p>
-    </div>
-
+    </div> 
     <script>
-    document.getElementById('modelSelect').addEventListener('change', function() {
-        var model = this.value;
-        var creditWarning = document.getElementById('creditWarning');
-        if(model === 'dall-e-3') {
-            creditWarning.style.display = 'block';
-        } else {
-            creditWarning.style.display = 'none';
-        }
-    });
+		const modelOptions = {
+			'dall-e': 'https://api.openai.com/v1/images/generations',
+			'dall-e-2': 'https://api.openai.com/v1/images/edit',
+			'dall-e-3': 'https://api.openai.com/v1/images/generations',
+			'dall-e-mini': 'https://api.openai.com/v1/images/generations',
+		};
 
-    document.getElementById('generateButton').addEventListener('click', function() {
-        var apiKey = document.getElementById('apiKey').value;
-        var promptText = document.getElementById('prompt').value;
-        var selectedSize = document.getElementById('sizeSelect').value;
-        var selectedModel = document.getElementById('modelSelect').value;
-        var responseBox = document.getElementById('responseBox');
+        // Ensure the image upload section is shown when DALL·E 2 is selected and hidden otherwise.
+		document.getElementById('modelSelect').addEventListener('change', function() {
+			var model = this.value;
+			var uploadSection = document.getElementById('uploadSection');
+			if(model === 'dall-e-2') {
+				uploadSection.style.display = 'block';
+			} else {
+				uploadSection.style.display = 'none';
+			}
+		});
 
-        responseBox.innerHTML = 'Loading...';
+        // In your call to the OpenAI API, include the base64 image data when DALL·E 2 is selected.
+        document.getElementById('generateButton').addEventListener('click', function() {
+            var model = document.getElementById('modelSelect').value;
+            var apiKey = document.getElementById('apiKey').value;
+            var promptText = document.getElementById('prompt').value;
+            var selectedSize = document.getElementById('sizeSelect').value;
+            var responseBox = document.getElementById('responseBox');
 
-        fetch('https://api.openai.com/v1/images/generations', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-                model: selectedModel, 
-                prompt: promptText,
-                n: 1,
-                size: selectedSize,
-                quality: 'hd'
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.data && data.data.length > 0) {
-                const imageData = data.data[0].url;
-                responseBox.innerHTML = `<img src="${imageData}" alt="Generated Image" style="max-width: 100%; height: auto;">`;
-            } else {
-                responseBox.innerText = 'No image was generated. Please try again with a different prompt.';
+            var userImage = document.getElementById('userImage');
+            var reader = new FileReader();
+            reader.readAsDataURL(userImage.files[0]); 
+            reader.onload = function () {
+                var base64Image = reader.result.split('base64,')[1];
+
+                fetch(modelOptions[model], {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`,
+                    },
+                    body: JSON.stringify({
+                        model: model,
+                        prompt: promptText,
+                        n: 1,
+                        size: selectedSize,
+                        quality: 'hd',
+                        ...(model === 'dall-e-2' ? {inpainting: true, base64_image: base64Image} : {})
+                    })
+                })
+                // ... handle response ...
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            responseBox.innerText = 'Failed to generate image. Please check the console for more details.';
+            reader.onerror = function (error) {
+                console.log('Error: ', error);
+            };
         });
-    });
     </script>
 </body>
 </html>
