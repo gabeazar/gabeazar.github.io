@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DALL·E Image Generator</title>
+    <title>DALL·E 3 Image Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-	<style>
+
+<style>
     body {
         font-family: 'Roboto', sans-serif;
         background-color: #f4f7f6;
@@ -67,12 +68,6 @@
         transition: all 0.3s ease 0s;
     }
 
-    .credit-warning {
-        color: #ff0000;
-        font-weight: bold;
-        display: none;
-    }
-
     button:hover {
         background-color: #0056b3;
     }
@@ -97,29 +92,18 @@
     .instructions a:hover {
         text-decoration: underline;
     }
-</style></head>
+</style>
+
+</head>
 <body>
     <div class="container">
-        <h1>DALL·E Image Generator</h1>
-        <label for="modelSelect">Choose DALL·E Model:</label>
-		<select id="modelSelect">
-			<option value="dall-e-2">DALL·E 2</option>
-			<option value="dall-e-3">DALL·E 3</option>
-		</select> 
-        <div id="creditWarning" class="credit-warning">
-            Note: Using DALL·E 3 may incur credit usage!
-        </div>
-		<div id="uploadSection" style="display: none;">
-			<label for="userImage">Upload an Image:</label>
-			<input type="file" id="userImage" name="userImage" accept="image/*">
-		</div>
+        <h1>DALL·E 3 Image Generator</h1>
 
-<label for="apiKey">OpenAI API Key:</label>
+        <label for="apiKey">OpenAI API Key:</label>
         <input type="password" id="apiKey" placeholder="Enter your OpenAI API key">
 
         <label for="prompt">Image Prompt (up to 1000 words):</label>
         <textarea id="prompt" rows="4" placeholder="Describe the image you want to generate..."></textarea>
-
 <!-- Size Selection -->
         <label for="sizeSelect">Select Image Size:</label>
             <select id="sizeSelect">
@@ -134,7 +118,7 @@
 
     <div class="instructions">
         <h2>How to Obtain an OpenAI API Key</h2>
-        <p>To use this DALL·E Image Generator, you need an API key from OpenAI. Follow these steps to get your key:</p>
+        <p>To use this DALL·E 3 Image Generator, you need an API key from OpenAI. Follow these steps to get your key:</p>
         <ul>
             <li>Visit <a href="https://openai.com/api/" target="_blank">OpenAI API</a> and sign up for an account or log in if you already have one.</li>
             <li>Navigate to the API keys section of your account settings.</li>
@@ -142,77 +126,46 @@
             <li>Copy your new API key and paste it into the "OpenAI API Key" field on this page.</li>
         </ul>
         <p>Note: Keep your API key secure and do not share it publicly.</p>
-    </div> 
+    </div>
+
     <script>
-        const modelOptions = {
-            'dall-e-2': 'https://api.openai.com/v1/images/edits',
-            'dall-e-3': 'https://api.openai.com/v1/images/generations',
-        };
-
-		document.getElementById('modelSelect').addEventListener('change', function() {
-			var model = this.value;
-			var uploadSection = document.getElementById('uploadSection');
-			if(model === 'dall-e-2') {
-				uploadSection.style.display = 'block';
-			} else {
-				uploadSection.style.display = 'none';
-			}
-		});
-
         document.getElementById('generateButton').addEventListener('click', function() {
-            var model = document.getElementById('modelSelect').value;
-            var apiKey = document.getElementById('apiKey').value;
-            var promptText = document.getElementById('prompt').value;
-            var selectedSize = document.getElementById('sizeSelect').value;
-            var responseBox = document.getElementById('responseBox');
+    var apiKey = document.getElementById('apiKey').value;
+    var promptText = document.getElementById('prompt').value;
+    // Fetch the selected size
+    var selectedSize = document.getElementById('sizeSelect').value; 
+    var responseBox = document.getElementById('responseBox');
 
-            var userImage = document.getElementById('userImage');
-            var reader = new FileReader();
+    responseBox.innerHTML = 'Loading...';
 
-            if(model === 'dall-e-2' && !userImage.files.length) {
-                alert("Please upload an image.");
-                return;
-            }
-
-            reader.readAsDataURL(userImage.files[0]); 
-
-            reader.onload = function () {
-                var base64Image = reader.result.split('base64,')[1];
-
-                fetch(modelOptions[model], {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`,
-                    },
-                    body: JSON.stringify({
-                        model: model,
-                        prompt: promptText,
-                        n: 1,
-                        size: selectedSize,
-                        quality: 'hd',
-                        ...(model === 'dall-e-2' ? {inpainting: true, base64_image: base64Image} : {})
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if(data.choices && data.choices.length > 0) {
-                        const imageUrl = data.choices[0].image;
-                        responseBox.innerHTML = `<img src="${imageUrl}" alt="Generated Image" style="max-width: 100%; height: auto;">`;
-                    } else {
-                        responseBox.innerText = 'No image was generated. Please try again with a different prompt.';
-                    }
-                })
-                .catch(error => {
-                    console.log('Error:', error);
-                    responseBox.innerText = 'Failed to generate image. Please check the console for more details.';
-                });
-            };
-
-            reader.onerror = function (error) {
-                console.log('Error: ', error);
-            };
-        });
+    fetch('https://api.openai.com/v1/images/generations', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+            model:'dall-e-3', 
+            prompt: promptText,
+            n: 1, // Number of images to generate
+            size: selectedSize, // Use the selected size
+            quality: 'hd'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.data && data.data.length > 0) {
+            const imageData = data.data[0].url;
+            responseBox.innerHTML = `<img src="${imageData}" alt="Generated Image" style="max-width: 100%; height: auto;">`;
+        } else {
+            responseBox.innerText = 'No image was generated. Please try again with a different prompt.';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        responseBox.innerText = 'Failed to generate image. Please check the console for more details.';
+    });
+});
     </script>
 </body>
 </html>
