@@ -104,13 +104,15 @@
 
         <label for="prompt">Image Prompt (up to 1000 words):</label>
         <textarea id="prompt" rows="4" placeholder="Describe the image you want to generate..."></textarea>
-<!-- Size Selection -->
+
+        <!-- Size Selection -->
         <label for="sizeSelect">Select Image Size:</label>
-            <select id="sizeSelect">
-                <option value="1024x1024">1024x1024</option>
-                <option value="1024x1792">1024x1792</option>
-                <option value="1792x1024" selected>1792x1024</option>
-            </select>
+        <select id="sizeSelect">
+            <option value="1920x1080" selected>1920x1080 (HD)</option>
+            <option value="1024x1024">1024x1024 (Square)</option>
+            <option value="1080x1920">1080x1920 (Vertical)</option>
+        </select>
+
         <button id="generateButton">Generate Image</button>
 
         <div id="responseBox" class="response"></div>
@@ -130,42 +132,41 @@
 
     <script>
         document.getElementById('generateButton').addEventListener('click', function() {
-    var apiKey = document.getElementById('apiKey').value;
-    var promptText = document.getElementById('prompt').value;
-    // Fetch the selected size
-    var selectedSize = document.getElementById('sizeSelect').value; 
-    var responseBox = document.getElementById('responseBox');
+            var apiKey = document.getElementById('apiKey').value;
+            var promptText = document.getElementById('prompt').value;
+            var selectedSize = document.getElementById('sizeSelect').value; 
+            var responseBox = document.getElementById('responseBox');
 
-    responseBox.innerHTML = 'Loading...';
+            responseBox.innerHTML = 'Loading...';
 
-    fetch('https://api.openai.com/v1/images/generations', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-            model:'dall-e-3', 
-            prompt: promptText,
-            n: 1, // Number of images to generate
-            size: selectedSize, // Use the selected size
-            quality: 'hd'
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if(data.data && data.data.length > 0) {
-            const imageData = data.data[0].url;
-            responseBox.innerHTML = `<img src="${imageData}" alt="Generated Image" style="max-width: 100%; height: auto;">`;
-        } else {
-            responseBox.innerText = 'No image was generated. Please try again with a different prompt.';
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        responseBox.innerText = 'Failed to generate image. Please check the console for more details.';
-    });
-});
+            fetch('https://api.openai.com/v1/images/generations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                },
+                body: JSON.stringify({
+                    model: 'dall-e-3',
+                    prompt: promptText,
+                    n: 1, 
+                    size: selectedSize, 
+                    quality: 'hd'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.data && data.data.length > 0) {
+                    const imageData = data.data[0].url;
+                    responseBox.innerHTML = `<img src="${imageData}" alt="Generated Image" style="max-width: 100%; height: auto;">`;
+                } else {
+                    responseBox.innerText = 'No image was generated. Please try again with a different prompt.';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                responseBox.innerText = 'Failed to generate image. Please check the console for more details.';
+            });
+        });
     </script>
 </body>
 </html>
